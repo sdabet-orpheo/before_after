@@ -11,6 +11,9 @@ class BeforeAfter extends StatefulWidget {
   final double thumbRadius;
   final Color overlayColor;
   final bool isVertical;
+  final double initClipFactor;
+  final StackFit fit;
+  final bool thumbOverflow;
 
   const BeforeAfter({
     Key? key,
@@ -23,22 +26,30 @@ class BeforeAfter extends StatefulWidget {
     this.thumbRadius = 16.0,
     this.overlayColor = Colors.black54,
     this.isVertical = false,
-  }) : super(key: key);
+    this.initClipFactor = 0.5,
+    this.fit = StackFit.loose,
+    this.thumbOverflow = false,
+  })  : assert(beforeImage != null),
+        assert(afterImage != null),
+        super(key: key);
 
   @override
-  _BeforeAfterState createState() => _BeforeAfterState();
+  _BeforeAfterState createState() => _BeforeAfterState(initClipFactor);
 }
 
 class _BeforeAfterState extends State<BeforeAfter> {
-  double _clipFactor = 0.5;
+  double _clipFactor;
+
+  _BeforeAfterState(this._clipFactor);
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
+      fit: widget.fit,
       children: <Widget>[
         Padding(
-          padding: widget.isVertical
+          padding: widget.thumbOverflow ? EdgeInsets.zero : widget.isVertical
               ? const EdgeInsets.symmetric(vertical: 24.0)
               : const EdgeInsets.symmetric(horizontal: 24.0),
           child: SizedImage(
@@ -49,7 +60,7 @@ class _BeforeAfterState extends State<BeforeAfter> {
           ),
         ),
         Padding(
-          padding: widget.isVertical
+          padding: widget.thumbOverflow ? EdgeInsets.zero : widget.isVertical
               ? const EdgeInsets.symmetric(vertical: 24.0)
               : const EdgeInsets.symmetric(horizontal: 24.0),
           child: ClipPath(
@@ -65,6 +76,10 @@ class _BeforeAfterState extends State<BeforeAfter> {
           ),
         ),
         Positioned.fill(
+          top: widget.thumbOverflow && widget.isVertical ? -24.0 : 0,
+          bottom: widget.thumbOverflow && widget.isVertical ? -24.0 : 0,
+          left: widget.thumbOverflow && !widget.isVertical ? -24.0 : 0,
+          right: widget.thumbOverflow && !widget.isVertical ? -24.0 : 0,
           child: SliderTheme(
             data: SliderThemeData(
               trackHeight: 0.0,
