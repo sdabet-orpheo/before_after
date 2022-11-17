@@ -14,6 +14,7 @@ class BeforeAfter extends StatefulWidget {
   final double initClipFactor;
   final StackFit fit;
   final bool thumbOverflow;
+  final ValueChanged<double>? onChanged;
 
   const BeforeAfter({
     Key? key,
@@ -29,6 +30,7 @@ class BeforeAfter extends StatefulWidget {
     this.initClipFactor = 0.5,
     this.fit = StackFit.loose,
     this.thumbOverflow = false,
+    this.onChanged,
   }) : super(key: key);
 
   @override
@@ -98,6 +100,7 @@ class _BeforeAfterState extends State<BeforeAfter> {
       value: _clipFactor,
       onChanged: (double factor) {
         setState(() => this._clipFactor = factor);
+        widget.onChanged?.call(factor);
       },
     );
   }
