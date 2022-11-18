@@ -15,6 +15,7 @@ class BeforeAfter extends StatefulWidget {
   final StackFit fit;
   final bool thumbOverflow;
   final ValueChanged<double>? onChanged;
+  final VoidCallback? onChangeStart, onChangeEnd;
 
   const BeforeAfter({
     Key? key,
@@ -31,6 +32,8 @@ class BeforeAfter extends StatefulWidget {
     this.fit = StackFit.loose,
     this.thumbOverflow = false,
     this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
   }) : super(key: key);
 
   @override
@@ -98,6 +101,8 @@ class _BeforeAfterState extends State<BeforeAfter> {
   Widget _buildSlider() {
     return Slider(
       value: _clipFactor,
+      onChangeStart: (value) => widget.onChangeStart?.call(),
+      onChangeEnd: (value) => widget.onChangeEnd?.call(),
       onChanged: (double factor) {
         setState(() => this._clipFactor = factor);
         widget.onChanged?.call(factor);
