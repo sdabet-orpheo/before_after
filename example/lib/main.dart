@@ -31,6 +31,9 @@ class MyHomePage extends StatelessWidget {
               child: BeforeAfter(
                 beforeImage: Image.asset('assets/after.jpg'),
                 afterImage: Image.asset('assets/before.jpg'),
+                fit: StackFit.expand,
+                thumbOverflow: true,
+                onChanged: (value) => print("onChanged: $value"),
               ),
             ),
             Expanded(
@@ -38,6 +41,9 @@ class MyHomePage extends StatelessWidget {
               child: BeforeAfter(
                 beforeImage: Image.asset('assets/after.jpg'),
                 afterImage: Image.asset('assets/before.jpg'),
+                fit: StackFit.expand,
+                thumbOverflow: true,
+                onChanged: (value) => print("onChanged: $value"),
                 isVertical: true,
               ),
             ),

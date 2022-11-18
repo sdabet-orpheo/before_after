@@ -14,6 +14,8 @@ class BeforeAfter extends StatefulWidget {
   final double initClipFactor;
   final StackFit fit;
   final bool thumbOverflow;
+  final ValueChanged<double>? onChanged;
+  final VoidCallback? onChangeStart, onChangeEnd;
 
   const BeforeAfter({
     Key? key,
@@ -29,9 +31,10 @@ class BeforeAfter extends StatefulWidget {
     this.initClipFactor = 0.5,
     this.fit = StackFit.loose,
     this.thumbOverflow = false,
-  })  : assert(beforeImage != null),
-        assert(afterImage != null),
-        super(key: key);
+    this.onChanged,
+    this.onChangeStart,
+    this.onChangeEnd,
+  }) : super(key: key);
 
   @override
   _BeforeAfterState createState() => _BeforeAfterState(initClipFactor);
@@ -49,9 +52,11 @@ class _BeforeAfterState extends State<BeforeAfter> {
       fit: widget.fit,
       children: <Widget>[
         Padding(
-          padding: widget.thumbOverflow ? EdgeInsets.zero : widget.isVertical
-              ? const EdgeInsets.symmetric(vertical: 24.0)
-              : const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: widget.thumbOverflow
+              ? EdgeInsets.zero
+              : widget.isVertical
+                  ? const EdgeInsets.symmetric(vertical: 24.0)
+                  : const EdgeInsets.symmetric(horizontal: 24.0),
           child: SizedImage(
             widget.afterImage,
             widget.imageHeight,
@@ -60,13 +65,13 @@ class _BeforeAfterState extends State<BeforeAfter> {
           ),
         ),
         Padding(
-          padding: widget.thumbOverflow ? EdgeInsets.zero : widget.isVertical
-              ? const EdgeInsets.symmetric(vertical: 24.0)
-              : const EdgeInsets.symmetric(horizontal: 24.0),
+          padding: widget.thumbOverflow
+              ? EdgeInsets.zero
+              : widget.isVertical
+                  ? const EdgeInsets.symmetric(vertical: 24.0)
+                  : const EdgeInsets.symmetric(horizontal: 24.0),
           child: ClipPath(
-            clipper: widget.isVertical
-                ? RectClipperVertical(_clipFactor)
-                : RectClipper(_clipFactor),
+            clipper: widget.isVertical ? RectClipperVertical(_clipFactor) : RectClipper(_clipFactor),
             child: SizedImage(
               widget.beforeImage,
               widget.imageHeight,
@@ -84,26 +89,24 @@ class _BeforeAfterState extends State<BeforeAfter> {
             data: SliderThemeData(
               trackHeight: 0.0,
               overlayColor: widget.overlayColor,
-              thumbShape:
-                  CustomThumbShape(widget.thumbRadius, widget.thumbColor),
+              thumbShape: CustomThumbShape(widget.thumbRadius, widget.thumbColor),
             ),
-            child: widget.isVertical
-                ? RotatedBox(
-                    quarterTurns: 1,
-                    child: Slider(
-                      value: _clipFactor,
-                      onChanged: (double factor) =>
-                          setState(() => this._clipFactor = factor),
-                    ),
-                  )
-                : Slider(
-                    value: _clipFactor,
-                    onChanged: (double factor) =>
-                        setState(() => this._clipFactor = factor),
-                  ),
+            child: widget.isVertical ? RotatedBox(quarterTurns: 1, child: _buildSlider()) : _buildSlider(),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSlider() {
+    return Slider(
+      value: _clipFactor,
+      onChangeStart: (value) => widget.onChangeStart?.call(),
+      onChangeEnd: (value) => widget.onChangeEnd?.call(),
+      onChanged: (double factor) {
+        setState(() => this._clipFactor = factor);
+        widget.onChanged?.call(factor);
+      },
     );
   }
 }
@@ -112,10 +115,7 @@ class SizedImage extends StatelessWidget {
   final Widget _image;
   final double _height, _width, _imageCornerRadius;
 
-  const SizedImage(
-      this._image, this._height, this._width, this._imageCornerRadius,
-      {Key? key})
-      : super(key: key);
+  const SizedImage(this._image, this._height, this._width, this._imageCornerRadius, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -182,9 +182,6 @@ class CustomThumbShape extends SliderComponentShape {
       paint,
     );
 
-    canvas.drawRect(
-        Rect.fromCenter(
-            center: center, width: 4.0, height: parentBox.size.height),
-        paint);
+    canvas.drawRect(Rect.fromCenter(center: center, width: 4.0, height: parentBox.size.height), paint);
   }
 }
